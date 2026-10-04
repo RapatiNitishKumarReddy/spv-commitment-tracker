@@ -2,10 +2,10 @@ import { summarizeSpvs } from "@/lib/commitments/summarizeSpvs";
 import type { ImportResult } from "@/lib/commitments/types";
 import AcceptedRowsTable from "./AcceptedRowsTable";
 import ImportSummary from "./ImportSummary";
-import OverSubscriptionAlert from "./OverSubscriptionAlert";
+import OverSubscriptionAlert from "@/app/_components/OverSubscriptionAlert";
 import RowIssuesTable from "./RowIssuesTable";
-import SpvConflictAlert from "./SpvConflictAlert";
-import SpvSummaryTable from "./SpvSummaryTable";
+import SpvConflictAlert from "@/app/_components/SpvConflictAlert";
+import SpvSummaryTable from "@/app/_components/SpvSummaryTable";
 
 interface ImportResultsProps {
   fileName: string;

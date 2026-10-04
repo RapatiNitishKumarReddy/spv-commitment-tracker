@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { getSpvDetail } from "./getSpvDetail";
 import { importCommitments } from "./importCommitments";
+import { sortSpvsByPercentFunded } from "./sortSpvs";
+import { assignSpvSlugs } from "./spvSlug";
 import { summarizeSpvs } from "./summarizeSpvs";
 
 // The exact sample file from the assignment, also served to users at /sample-commitments.csv.
@@ -86,5 +89,60 @@ describe("end-to-end import of the assignment sample CSV", () => {
       hasTargetConflict: true,
       isOverSubscribed: false,
     });
+  });
+});
+
+describe("SPV list and detail views for the assignment sample CSV", () => {
+  const result = importCommitments(sampleCsv);
+  const summaries = summarizeSpvs(result.accepted, result.spvConflicts);
+
+  it("sorts the SPV list by percent funded: Beta (140%), Alpha (25%), then Gamma (conflict)", () => {
+    expect(
+      sortSpvsByPercentFunded(summaries).map((s) => [s.spvName, s.percentFunded]),
+    ).toEqual([
+      ["Beta Infra SPV", 140],
+      ["Alpha Growth SPV I", 25],
+      ["Gamma Health SPV", null],
+    ]);
+  });
+
+  it("assigns readable detail-page slugs", () => {
+    expect([...assignSpvSlugs(summaries.map((s) => s.spvKey)).values()]).toEqual([
+      "alpha-growth-spv-i",
+      "beta-infra-spv",
+      "gamma-health-spv",
+    ]);
+  });
+
+  it("shows Beta Infra's investors, total and over-subscription on its detail page", () => {
+    const detail = getSpvDetail(result, "beta-infra-spv");
+    expect(detail?.summary.commitments.map((c) => [c.investorName, c.commitmentUsd])).toEqual([
+      ["Neha Rao", 150000],
+      ["Sara Khan", 200000],
+    ]);
+    expect(detail?.summary).toMatchObject({ totalCommittedUsd: 350000, percentFunded: 140, isOverSubscribed: true });
+    expect(detail?.issues.map((i) => [i.lineNumber, i.status])).toEqual([
+      [7, "rejected"],
+      [9, "rejected"],
+    ]);
+  });
+
+  it("lists Alpha's accepted investors and its rows needing review", () => {
+    const detail = getSpvDetail(result, "alpha-growth-spv-i");
+    expect(detail?.summary.commitments.map((c) => c.investorEmail)).toEqual([
+      "riya@example.com",
+      "arjun@example.com",
+    ]);
+    expect(detail?.issues.map((i) => [i.lineNumber, i.status])).toEqual([
+      [4, "flagged"],
+      [5, "rejected"],
+    ]);
+  });
+
+  it("shows Gamma Health's target conflict on its detail page without picking a target", () => {
+    const detail = getSpvDetail(result, "gamma-health-spv");
+    expect(detail?.summary).toMatchObject({ targetUsd: null, percentFunded: null, totalCommittedUsd: 220000 });
+    expect(detail?.conflict?.targets.map((t) => t.targetUsd)).toEqual([300000, 350000]);
+    expect(detail?.issues).toEqual([]);
   });
 });

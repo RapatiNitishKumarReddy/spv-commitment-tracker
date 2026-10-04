@@ -1,22 +1,34 @@
+import Link from "next/link";
 import type { SpvSummary, SpvTargetConflict } from "@/lib/commitments/types";
 import { formatPercent, formatUsd } from "@/lib/format";
 import { describeConflictTargets } from "./SpvConflictAlert";
 import StatusBadge from "./StatusBadge";
+import { textLinkClass } from "./styles";
 
 interface SpvSummaryTableProps {
   summaries: SpvSummary[];
   conflicts: SpvTargetConflict[];
+  title?: string;
+  description?: string;
+  /** When provided, SPV names link to this URL and a "Details" column is shown. */
+  getHref?: (summary: SpvSummary) => string;
 }
 
-export default function SpvSummaryTable({ summaries, conflicts }: SpvSummaryTableProps) {
+export default function SpvSummaryTable({
+  summaries,
+  conflicts,
+  title = "SPV totals",
+  description = "Totals include accepted rows only. Flagged and rejected rows are excluded.",
+  getHref,
+}: SpvSummaryTableProps) {
   const conflictBySpv = new Map(conflicts.map((c) => [c.spvKey, c]));
 
   return (
     <section aria-labelledby="spv-summary-heading" className="flex flex-col gap-3">
       <div>
-        <h2 id="spv-summary-heading" className="text-xl font-semibold">SPV totals</h2>
+        <h2 id="spv-summary-heading" className="text-xl font-semibold">{title}</h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Totals include accepted rows only. Flagged and rejected rows are excluded.
+          {description}
         </p>
       </div>
 
@@ -32,14 +44,28 @@ export default function SpvSummaryTable({ summaries, conflicts }: SpvSummaryTabl
                 <th scope="col" className="px-3 py-2 text-right font-medium">Committed</th>
                 <th scope="col" className="px-3 py-2 text-right font-medium">% of target</th>
                 <th scope="col" className="px-3 py-2 font-medium">Status</th>
+                {getHref && (
+                  <th scope="col" className="px-3 py-2 font-medium">
+                    <span className="sr-only">Details</span>
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {summaries.map((summary) => {
                 const conflict = conflictBySpv.get(summary.spvKey);
+                const href = getHref?.(summary);
                 return (
                   <tr key={summary.spvKey}>
-                    <th scope="row" className="px-3 py-2 font-medium">{summary.spvName}</th>
+                    <th scope="row" className="px-3 py-2 font-medium">
+                      {href ? (
+                        <Link href={href} className={textLinkClass}>
+                          {summary.spvName}
+                        </Link>
+                      ) : (
+                        summary.spvName
+                      )}
+                    </th>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {summary.targetUsd === null ? (
                         <span className="text-red-700 dark:text-red-400">
@@ -66,6 +92,14 @@ export default function SpvSummaryTable({ summaries, conflicts }: SpvSummaryTabl
                         <StatusBadge tone="neutral">Within target</StatusBadge>
                       )}
                     </td>
+                    {href && (
+                      <td className="px-3 py-2 text-right">
+                        <Link href={href} className={`whitespace-nowrap text-sm ${textLinkClass}`}>
+                          View details<span className="sr-only"> for {summary.spvName}</span>
+                          <span aria-hidden="true"> →</span>
+                        </Link>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
