@@ -1,0 +1,11 @@
+spv_name,spv_target_usd,investor_name,investor_email,commitment
+Alpha Growth SPV I,500000,Riya Shah,riya@example.com,"$50,000"
+Alpha Growth SPV I,500000,Arjun Mehta,arjun@example.com,75000
+Alpha Growth SPV I,500000,riya shah,RIYA@example.com,25000
+Alpha Growth SPV I,500000,Karan Iyer,karan@example,40000
+Beta Infra SPV,250000,Neha Rao,neha@example.com,1.5L
+Beta Infra SPV,250000,Dev Patel,dev@example.com,-10000
+Beta Infra SPV,250000,Sara Khan,sara@example.com,200000
+Beta Infra SPV,250000,Tom Lee,tom@example.com,
+Gamma Health SPV,300000,Ana Cruz,ana@example.com,100k
+Gamma Health SPV,350000,Ben Ortiz,ben@example.com,120000

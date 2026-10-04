@@ -30,11 +30,11 @@ SPV Commitment Tracker is a web application for tracking and managing SPV commit
 
 ## Testing
 
-- No automated test framework is currently configured.
+- Unit tests use Vitest (Node environment) and live next to the code as `lib/**/*.test.ts`.
+- Run `npm test` to run the test suite once, or `npm run test:watch` while developing.
 - Run `npm run lint` to check code quality.
 - Run `npm run build` to verify the project builds successfully.
-- When automated tests are added, update this section with the appropriate test command.
-- Add tests for important business logic when a test framework is introduced.
+- Keep business logic (CSV parsing, validation, calculations) in `lib/`, framework-independent, and covered by tests.
 
 ## Development Rules
 
