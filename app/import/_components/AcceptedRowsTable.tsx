@@ -1,6 +1,6 @@
 import type { Commitment } from "@/lib/commitments/types";
 import { formatUsd } from "@/lib/format";
-import StatusBadge from "./StatusBadge";
+import StatusBadge from "@/app/_components/StatusBadge";
 
 interface AcceptedRowsTableProps {
   commitments: Commitment[];
