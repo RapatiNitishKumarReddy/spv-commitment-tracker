@@ -12,7 +12,7 @@ well each SPV (special purpose vehicle) is funded against its target.
 - **Warnings** for over-subscribed SPVs and for SPVs whose target is stated
   inconsistently in the CSV.
 
-**Production:** _add the Vercel production URL here after the first deployment_
+**Production:** https://spv-commitment-tracker.vercel.app
 
 ## Tech stack
 
