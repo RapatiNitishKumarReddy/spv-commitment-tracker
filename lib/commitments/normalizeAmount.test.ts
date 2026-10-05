@@ -62,6 +62,32 @@ describe("normalizeAmount", () => {
     }
   });
 
+  describe("Indian digit grouping", () => {
+    it("normalizes standard Indian grouping", () => {
+      expect(valueOf("1,50,000")).toBe(150000);
+      expect(valueOf("12,50,000")).toBe(1250000);
+      expect(valueOf("12,34,567")).toBe(1234567);
+      expect(valueOf("1,00,00,000")).toBe(10000000);
+    });
+
+    it("works with a $ prefix and decimals", () => {
+      expect(valueOf("$1,50,000")).toBe(150000);
+      expect(valueOf("1,50,000.50")).toBe(150000.5);
+    });
+
+    it("rejects negative Indian-grouped amounts as negative", () => {
+      for (const raw of ["-1,50,000", "(1,50,000)", "$-1,50,000"]) {
+        expect(errorCodeOf(raw), raw).toBe("negative");
+      }
+    });
+
+    it("still rejects malformed or mixed grouping", () => {
+      for (const raw of ["123,45,678", "1,5,000", "1,50,00", "1,500,00", "12,34,567,890", ",50,000", "1,50,000,"]) {
+        expect(errorCodeOf(raw), raw).toBe("invalid");
+      }
+    });
+  });
+
   it("uses the label in error messages", () => {
     const result = normalizeAmount("", "Commitment");
     expect(result).toEqual({ ok: false, code: "missing", message: "Commitment is missing" });
