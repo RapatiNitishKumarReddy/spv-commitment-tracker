@@ -3,7 +3,7 @@ export type EmailResult =
   | { ok: false; message: string };
 
 // Pragmatic check: something@domain.tld, no whitespace, exactly one "@".
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** Trims and lowercases an email, then checks its format. */
 export function normalizeEmail(raw: string): EmailResult {
