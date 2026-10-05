@@ -76,6 +76,25 @@ describe("importCommitments — row validation", () => {
     });
   });
 
+  it("accepts quoted amounts in Indian digit grouping", () => {
+    const result = importCommitments(
+      csv('Alpha,"10,00,000",Ann,ann@x.com,"1,50,000"', 'Alpha,"10,00,000",Ben,ben@x.com,"$12,34,567"'),
+    );
+    expect(result.rejected).toEqual([]);
+    expect(result.accepted.map((c) => [c.spvTargetUsd, c.commitmentUsd])).toEqual([
+      [1000000, 150000],
+      [1000000, 1234567],
+    ]);
+  });
+
+  it("treats the same target written in Indian and international grouping as one target", () => {
+    const result = importCommitments(
+      csv('Alpha,"10,00,000",Ann,ann@x.com,1.5L', 'Alpha,"1,000,000",Ben,ben@x.com,"1,50,000"'),
+    );
+    expect(result.spvConflicts).toEqual([]);
+    expect(result.accepted.map((c) => c.commitmentUsd)).toEqual([150000, 150000]);
+  });
+
   it("rejects zero commitments", () => {
     const result = importCommitments(csv("Alpha,500000,Ann,a@x.com,0"));
     expect(result.rejected[0].reasons[0].message).toBe("Commitment must be greater than zero");

@@ -3,13 +3,15 @@
  *
  * Supported formats (optionally prefixed with `$`):
  *   50000, 50,000, $50,000, 50000.50
+ *   1,50,000 / 12,34,567 / 1,00,00,000 → Indian digit grouping
  *   100k / 100K  → × 1,000
  *   1.5L / 1.5l  → × 100,000 (lakh)
  *
  * Rejected, never guessed:
  *   blank values, negative values (`-`, `$-`, `-$`, `(…)`), zero,
- *   malformed separators (`5,0,00`), unknown suffixes (`10m`) and anything
- *   else that does not match the grammar above.
+ *   malformed separators (`5,0,00`), grouping that mixes or breaks both
+ *   systems (`123,45,678`), unknown suffixes (`10m`) and anything else that
+ *   does not match the grammar above.
  *
  * Assumption: a commitment or target must be a positive amount, so `0` is
  * rejected.
@@ -26,10 +28,15 @@ const MULTIPLIERS: Record<string, number> = {
   l: 100_000,
 };
 
-// $? then digits (with well-formed thousands separators, or none), an
-// optional decimal part and an optional k/L suffix.
+// $? then the integer part, an optional decimal part and an optional k/L
+// suffix. The integer part is one of:
+//   - international grouping: 1-3 digits, then groups of 3   (1,250,000)
+//   - Indian grouping: 1-2 digits, groups of 2, a final 3     (12,34,567)
+//   - plain digits                                            (1250000)
+// Each number must follow one system throughout; commas are removed before
+// the value is computed, so both systems yield the same number.
 const AMOUNT_PATTERN =
-  /^\$?\s*(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?\s*([kKlL])?$/;
+  /^\$?\s*(\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})+,\d{3}|\d+)(?:\.(\d+))?\s*([kKlL])?$/;
 
 function parseUnsignedAmount(text: string): number | null {
   const match = AMOUNT_PATTERN.exec(text);

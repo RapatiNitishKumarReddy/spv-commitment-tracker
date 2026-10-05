@@ -75,11 +75,17 @@ Amounts are in USD. `spv_target_usd` and `commitment` accept:
 | Input | Value |
 | --- | --- |
 | `50000`, `50,000`, `$50,000` | 50,000 |
+| `1,50,000`, `12,34,567`, `1,00,00,000` | 150,000 / 1,234,567 / 10,000,000 (Indian digit grouping) |
 | `100k` | 100,000 (k = × 1,000) |
 | `1.5L` | 150,000 (L = lakh, × 100,000) |
 
+Both international (`1,250,000`) and Indian (`12,50,000`) digit grouping are
+accepted, but each number must use one system consistently. In a CSV, amounts
+containing commas must be quoted (`"1,50,000"`).
+
 Negative values (`-10000`, `$-5,000`, `(5000)`), blank values, zero, malformed
-numbers (`5,0,00`) and unknown suffixes (`10m`) are rejected, never guessed.
+or mixed grouping (`5,0,00`, `123,45,678`) and unknown suffixes (`10m`) are
+rejected, never guessed.
 
 ### Row outcomes
 
