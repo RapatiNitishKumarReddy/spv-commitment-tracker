@@ -12,6 +12,10 @@ describe("normalizeEmail", () => {
     if (!result.ok) expect(result.message).toContain("karan@example");
   });
 
+  it("rejects a one-character top-level domain", () => {
+  expect(normalizeEmail("bob@example.c").ok).toBe(false);
+  });
+
   it("rejects other malformed emails", () => {
     for (const raw of ["no-at-sign.com", "a@@b.com", "a b@c.com", "@example.com", "riya@.com", "riya@example."]) {
       expect(normalizeEmail(raw).ok, raw).toBe(false);
